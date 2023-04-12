@@ -1,0 +1,6 @@
+TOKEN = "6140037149:AAHg87ZzeI3GvtuL7nms5zZFykS-AJe5UTs"
+USER_DB = 'postgres'
+PASSWORD_DB = '13271408'
+HOST_DB = '127.0.0.1'
+PORT_DB = '1234'
+DATABASE_NAME_DB = 'db_sound_repair'
