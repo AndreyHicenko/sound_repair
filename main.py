@@ -1,25 +1,71 @@
 from aiogram import Bot, Dispatcher, types
 import asyncio
-import psycopg2
 from config import TOKEN
 from aiogram.utils import executor
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import logging
 from keyboards.keyboard_start import *
 from keyboards.keyboard_servises import *
 from keyboards.keyboard_kontakt import *
 from keyboards.keyboard_price_lists import *
+from keyboards.keyboard_admin import *
 from datebase.query_datebase import *
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
+
+
+class Mydialog(StatesGroup):
+    otvet = State()
 
 
 @dp.message_handler(commands=['start'])
 async def cmd_start(message: types.Message):
-    await message.answer("<b>Здравствуйте!</b> Вас приветствует<b>"
-                         " бот студии автозвука SOUND REPAIR.</b>",
-                         parse_mode="HTML", reply_markup=kb_start)
+    # админ панель начало
+    admin_list_id = []
+    for i in range(len((await search_admin_users()))):
+        admin_list_id.append(int((await (search_admin_users()))[i]['id_admin_users']))
+    if message.from_user.id in admin_list_id:
+        await message.answer("<b>Здравствуйте!</b> Вас приветствует консоль администратора<b>"
+                             " бота студии автозвука SOUND REPAIR.</b>",
+                             parse_mode="HTML", reply_markup=kb_admin)
+    else:
+        list_users_id = [int(s['id_users']) for s in (await search_users_id())]
+        if message.from_user.id not in list_users_id:
+            (await add_users_id(message.from_user.id))
+        await message.answer("<b>Здравствуйте!</b> Вас приветствует<b>"
+                             " бот студии автозвука SOUND REPAIR.</b>",
+                             parse_mode="HTML", reply_markup=kb_start)
+
+
+# обработчик кнопки рассылки администратора
+@dp.callback_query_handler(text='callback_admin_mailing')
+async def callback_admin_mailing(callback: types.callback_query):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, 'Введите текст рассылки')
+    await Mydialog.otvet.set()
+
+
+@dp.message_handler(state=Mydialog.otvet)
+async def process_message(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['text'] = message.text
+        user_message = data['text']
+        admin_list_id = []
+        for i in range(len((await search_admin_users()))):
+            admin_list_id.append(int((await (search_admin_users()))[i]['id_admin_users']))
+        for s in (await search_users_id()):
+            if int(s['id_users']) not in admin_list_id:
+                await bot.send_message(int(s['id_users']), user_message)
+        try:
+            await message.answer("Отлично! Ваше сообщение доставлено")
+            await state.finish()
+        except Exception:
+            await message.answer("Что-то пошло не так")
+            await state.finish()
 
 
 @dp.callback_query_handler(text='kb_our_services')
