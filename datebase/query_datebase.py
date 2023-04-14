@@ -61,3 +61,23 @@ async def add_users_id(values):
                                  database=DATABASE_NAME_DB)
     statement = """INSERT INTO table_users_id (id_users) VALUES($1);"""
     await conn.execute(statement, values)
+
+
+async def update_lost_message_admin(message, id):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    statement = """UPDATE table_admin_id SET admin_lost_message = $1 WHERE id_admin_users = $2"""
+    await conn.execute(statement, message, id)
+
+
+async def get_admin_lost_message(id_admin_users):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    query = """SELECT admin_lost_message FROM table_admin_id WHERE id_admin_users = $1"""
+    return await conn.fetchval(query, id_admin_users)

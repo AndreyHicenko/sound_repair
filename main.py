@@ -41,12 +41,55 @@ async def cmd_start(message: types.Message):
                              parse_mode="HTML", reply_markup=kb_start)
 
 
-# обработчик кнопки рассылки администратора
+# консоль администратора
 @dp.callback_query_handler(text='callback_admin_mailing')
 async def callback_admin_mailing(callback: types.callback_query):
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    await bot.send_message(callback.from_user.id, 'Введите текст рассылки')
+    await bot.send_message(callback.from_user.id, 'Введите текст рассылки', reply_markup=kb_admin_mailing_only_back)
     await Mydialog.otvet.set()
+
+
+@dp.callback_query_handler(text='callback_admin_mail_back', state=Mydialog.otvet)
+async def callback_admin_mailing_back_only(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    admin_list_id = []
+    for i in range(len((await search_admin_users()))):
+        admin_list_id.append(int((await (search_admin_users()))[i]['id_admin_users']))
+    if callback.from_user.id in admin_list_id:
+        await bot.send_message(callback.from_user.id, "Вы находитесь в консоли администратора<b>"
+                                                      " бота студии автозвука SOUND REPAIR.</b>",
+                               parse_mode="HTML", reply_markup=kb_admin)
+
+
+@dp.callback_query_handler(text='callback_admin_mail_back_to_console')
+async def callback_admin_mailing_back(callback: types.callback_query):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    admin_list_id = []
+    for i in range(len((await search_admin_users()))):
+        admin_list_id.append(int((await (search_admin_users()))[i]['id_admin_users']))
+    if callback.from_user.id in admin_list_id:
+        await bot.send_message(callback.from_user.id, "Вы находитесь в консоли администратора<b>"
+                                                      " бота студии автозвука SOUND REPAIR.</b>",
+                               parse_mode="HTML", reply_markup=kb_admin)
+
+
+@dp.callback_query_handler(text='callback_admin_mail_message_accept', state=Mydialog.otvet)
+async def callback_admin_mailing_accept(callback: types.callback_query, state: FSMContext):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    admin_list_id = []
+    for i in range(len((await search_admin_users()))):
+        admin_list_id.append(int((await (search_admin_users()))[i]['id_admin_users']))
+    for s in (await search_users_id()):
+        if int(s['id_users']) not in admin_list_id:
+            await bot.send_message(int(s['id_users']), (await get_admin_lost_message(callback.from_user.id)))
+    try:
+        await bot.send_message(callback.from_user.id, "Отлично! Ваше сообщение доставлено",
+                               reply_markup=kb_admin_mailing_send_back)
+        await state.finish()
+    except Exception:
+        await bot.send_message(callback.from_user.id, "Что-то пошло не так", reply_markup=kb_admin_mailing_send_back)
+        await state.finish()
 
 
 @dp.message_handler(state=Mydialog.otvet)
@@ -54,20 +97,21 @@ async def process_message(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['text'] = message.text
         user_message = data['text']
-        admin_list_id = []
-        for i in range(len((await search_admin_users()))):
-            admin_list_id.append(int((await (search_admin_users()))[i]['id_admin_users']))
-        for s in (await search_users_id()):
-            if int(s['id_users']) not in admin_list_id:
-                await bot.send_message(int(s['id_users']), user_message)
-        try:
-            await message.answer("Отлично! Ваше сообщение доставлено")
-            await state.finish()
-        except Exception:
-            await message.answer("Что-то пошло не так")
-            await state.finish()
+        (await update_lost_message_admin(user_message, message.from_user.id))
+        await Mydialog.otvet.set()
+        await message.answer(f"❓ <b>Вы действительно хотите совершить рассылку со следующим содержимым?</b>\n\n\n"
+                             f"{user_message}", parse_mode='HTML', reply_markup=kb_admin_mailing)
 
 
+@dp.callback_query_handler(text='callback_admin_mail_message_cancel', state=Mydialog.otvet)
+async def callback_admin_mail_message_cancel(callback: types.callback_query, state: FSMContext):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, "Отправка отменена",
+                           parse_mode="HTML", reply_markup=kb_admin_mailing_send_back)
+    await state.finish()
+
+
+# рядовый пользовательский контекст
 @dp.callback_query_handler(text='kb_our_services')
 async def our_services_callback(callback: types.callback_query):
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
