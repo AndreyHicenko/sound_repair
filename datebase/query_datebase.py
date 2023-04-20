@@ -1,6 +1,6 @@
 import asyncpg
-import asyncio
 from config import *
+import asyncio
 
 
 async def search_db_price_din():
@@ -81,3 +81,34 @@ async def get_admin_lost_message(id_admin_users):
                                  database=DATABASE_NAME_DB)
     query = """SELECT admin_lost_message FROM table_admin_id WHERE id_admin_users = $1"""
     return await conn.fetchval(query, id_admin_users)
+
+async def get_users_lost_photo(id_users):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    query = """SELECT lost_photo FROM table_users_id WHERE id_users = $1"""
+    return await conn.fetchval(query, id_users)
+
+async def update_lost_photo_users_up(id):
+    lost_photo = (await get_users_lost_photo(id)) + 1
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    statement = """UPDATE table_users_id SET lost_photo = $1 WHERE id_users = $2"""
+    await conn.execute(statement, lost_photo, id)
+
+async def update_lost_photo_users_down(id):
+    lost_photo = (await get_users_lost_photo(id)) - 1
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    statement = """UPDATE table_users_id SET lost_photo = $1 WHERE id_users = $2"""
+    await conn.execute(statement, lost_photo, id)
+
+

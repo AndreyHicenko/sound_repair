@@ -12,6 +12,7 @@ from keyboards.keyboard_kontakt import *
 from keyboards.keyboard_price_lists import *
 from keyboards.keyboard_admin import *
 from datebase.query_datebase import *
+from keyboards.keyboard_photo_example_works import *
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -232,6 +233,31 @@ async def kb_price_repair_subwoofer(callback: types.callback_query):
                            f" {price_amplifier[9]['price']} Руб. </b>\n\n",
                            parse_mode="HTML",
                            reply_markup=kb_price_repair_din_markup)
+
+@dp.callback_query_handler(text='callback_example_works')
+async def callback_example_works(callback: types.callback_query):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb')\
+            as photo:
+        await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
+
+@dp.callback_query_handler(text='callback_photo_back')
+async def callback_photo_back(callback: types.callback_query):
+    if (await get_users_lost_photo(callback.from_user.id)) > 1:
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        (await update_lost_photo_users_down(callback.from_user.id))
+        with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb')\
+                as photo:
+            await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
+
+@dp.callback_query_handler(text='callback_photo_forward')
+async def callback_photo_back(callback: types.callback_query):
+    if (await get_users_lost_photo(callback.from_user.id)) <= 32:
+        await bot.delete_message(callback.from_user.id, callback.message.message_id)
+        (await update_lost_photo_users_up(callback.from_user.id))
+        with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb')\
+                as photo:
+            await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
 
 
 if __name__ == '__main__':
