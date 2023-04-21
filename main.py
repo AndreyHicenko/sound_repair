@@ -265,12 +265,12 @@ async def callback_photo_back(callback: types.callback_query):
                 as photo:
             await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
 
+
 @dp.callback_query_handler(text='callback_sign_up_btn')
 async def callback_sign_up_btn(callback: types.callback_query):
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
     await bot.send_message(callback.from_user.id, '<b>Выберете куда вы хотите записаться</b>', parse_mode='HTML',
                            reply_markup=kb_sign_up)
-
 
 
 @dp.callback_query_handler(text='callback_installation')
@@ -281,7 +281,6 @@ async def callback_installation(callback: types.callback_query):
     await Mydialog.state_sign_up_name.set()
 
 
-
 @dp.message_handler(state=Mydialog.state_sign_up_name)
 async def callback_installation_state(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -290,7 +289,8 @@ async def callback_installation_state(message: types.Message, state: FSMContext)
         (await update_name_users(user_message, message.from_user.id))
         await Mydialog.state_sign_up_name.set()
         await bot.send_message(message.from_user.id, f"<b>Вас зовут</b> "
-        f"{user_message}?", parse_mode='HTML', reply_markup=kb_sign_up_name)
+                                                     f"{user_message}?", parse_mode='HTML',
+                               reply_markup=kb_sign_up_name)
 
 
 @dp.callback_query_handler(text='callback_installation_no', state=Mydialog.state_sign_up_name)
@@ -301,12 +301,14 @@ async def callback_installation_no(callback: types.callback_query, state: FSMCon
                            reply_markup=kb_sign_up_only_back)
     await Mydialog.state_sign_up_name.set()
 
+
 @dp.callback_query_handler(text='callback_sign_up_back', state=Mydialog.state_sign_up_name)
 async def callback_sign_up_back(callback: types.callback_query, state: FSMContext):
     await state.finish()
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
     await bot.send_message(callback.from_user.id, '<b>Выберете куда вы хотите записаться</b>', parse_mode='HTML',
                            reply_markup=kb_sign_up)
+
 
 @dp.callback_query_handler(text='callback_installation_yes', state=Mydialog.state_sign_up_name)
 async def callback_installation_yes(callback: types.callback_query, state: FSMContext):
@@ -316,6 +318,7 @@ async def callback_installation_yes(callback: types.callback_query, state: FSMCo
                            reply_markup=kb_sign_up_only_back)
     await Mydialog.state_sign_up_mobile_number.set()
 
+
 @dp.message_handler(state=Mydialog.state_sign_up_mobile_number)
 async def callback_installation_state(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -324,7 +327,7 @@ async def callback_installation_state(message: types.Message, state: FSMContext)
         (await update_number_phone_users(user_message, message.from_user.id))
         await Mydialog.state_sign_up_mobile_number.set()
         await bot.send_message(message.from_user.id, f"<b>Это ваш номер телефона</b> "
-        f"{user_message}?", parse_mode='HTML', reply_markup=kb_sign_up_num)
+                                                     f"{user_message}?", parse_mode='HTML', reply_markup=kb_sign_up_num)
 
 
 @dp.callback_query_handler(text='callback_sign_up_installation_num_yes', state=Mydialog.state_sign_up_mobile_number)
@@ -337,6 +340,7 @@ async def callback_installation_yes(callback: types.callback_query, state: FSMCo
                                                   f' <b>для уточнения времени</b>'
                            , parse_mode='HTML',
                            reply_markup=kb_sign_up_back_to_servis)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp)
