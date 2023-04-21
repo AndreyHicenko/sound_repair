@@ -13,6 +13,7 @@ from keyboards.keyboard_price_lists import *
 from keyboards.keyboard_admin import *
 from datebase.query_datebase import *
 from keyboards.keyboard_photo_example_works import *
+from keyboards.keyboard_sign_up import *
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -21,6 +22,8 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 class Mydialog(StatesGroup):
     otvet = State()
+    state_sign_up_name = State()
+    state_sign_up_mobile_number = State()
 
 
 @dp.message_handler(commands=['start'])
@@ -234,31 +237,106 @@ async def kb_price_repair_subwoofer(callback: types.callback_query):
                            parse_mode="HTML",
                            reply_markup=kb_price_repair_din_markup)
 
+
 @dp.callback_query_handler(text='callback_example_works')
 async def callback_example_works(callback: types.callback_query):
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb')\
+    with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb') \
             as photo:
         await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
+
 
 @dp.callback_query_handler(text='callback_photo_back')
 async def callback_photo_back(callback: types.callback_query):
     if (await get_users_lost_photo(callback.from_user.id)) > 1:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         (await update_lost_photo_users_down(callback.from_user.id))
-        with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb')\
+        with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb') \
                 as photo:
             await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
+
 
 @dp.callback_query_handler(text='callback_photo_forward')
 async def callback_photo_back(callback: types.callback_query):
     if (await get_users_lost_photo(callback.from_user.id)) <= 32:
         await bot.delete_message(callback.from_user.id, callback.message.message_id)
         (await update_lost_photo_users_up(callback.from_user.id))
-        with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb')\
+        with open(f'static/img/img_example_works/{(await get_users_lost_photo(callback.from_user.id))}.jpeg', 'rb') \
                 as photo:
             await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
 
+@dp.callback_query_handler(text='callback_sign_up_btn')
+async def callback_sign_up_btn(callback: types.callback_query):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Выберете куда вы хотите записаться</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up)
+
+
+
+@dp.callback_query_handler(text='callback_installation')
+async def callback_installation(callback: types.callback_query):
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Укажите как к вам обращаться</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up_only_back)
+    await Mydialog.state_sign_up_name.set()
+
+
+
+@dp.message_handler(state=Mydialog.state_sign_up_name)
+async def callback_installation_state(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['text'] = message.text
+        user_message = data['text']
+        (await update_name_users(user_message, message.from_user.id))
+        await Mydialog.state_sign_up_name.set()
+        await bot.send_message(message.from_user.id, f"<b>Вас зовут</b> "
+        f"{user_message}?", parse_mode='HTML', reply_markup=kb_sign_up_name)
+
+
+@dp.callback_query_handler(text='callback_installation_no', state=Mydialog.state_sign_up_name)
+async def callback_installation_no(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Укажите как к вам обращаться</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up_only_back)
+    await Mydialog.state_sign_up_name.set()
+
+@dp.callback_query_handler(text='callback_sign_up_back', state=Mydialog.state_sign_up_name)
+async def callback_sign_up_back(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Выберете куда вы хотите записаться</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up)
+
+@dp.callback_query_handler(text='callback_installation_yes', state=Mydialog.state_sign_up_name)
+async def callback_installation_yes(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Укажите ваш номер телефона</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up_only_back)
+    await Mydialog.state_sign_up_mobile_number.set()
+
+@dp.message_handler(state=Mydialog.state_sign_up_mobile_number)
+async def callback_installation_state(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['text'] = message.text
+        user_message = data['text']
+        (await update_number_phone_users(user_message, message.from_user.id))
+        await Mydialog.state_sign_up_mobile_number.set()
+        await bot.send_message(message.from_user.id, f"<b>Это ваш номер телефона</b> "
+        f"{user_message}?", parse_mode='HTML', reply_markup=kb_sign_up_num)
+
+
+@dp.callback_query_handler(text='callback_sign_up_installation_num_yes', state=Mydialog.state_sign_up_mobile_number)
+async def callback_installation_yes(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, f'<b>Вы записались на установку акустики.'
+                                                  f' В ближайшее время вам перезвонят по номеру </b>'
+                                                  f'{(await get_users_number_phone(callback.from_user.id))}'
+                                                  f' <b>для уточнения времени</b>'
+                           , parse_mode='HTML',
+                           reply_markup=kb_sign_up_back_to_servis)
 
 if __name__ == '__main__':
     executor.start_polling(dp)

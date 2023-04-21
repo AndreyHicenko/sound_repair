@@ -112,3 +112,43 @@ async def update_lost_photo_users_down(id):
     await conn.execute(statement, lost_photo, id)
 
 
+async def update_name_users(name, id):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    statement = """UPDATE table_users_id SET name = $1 WHERE id_users = $2"""
+    await conn.execute(statement, name, id)
+
+
+async def update_number_phone_users(number_phone, id):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    statement = """UPDATE table_users_id SET number_phone = $1 WHERE id_users = $2"""
+    await conn.execute(statement, number_phone, id)
+
+async def get_users_name(id_users):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    query = """SELECT name FROM table_users_id WHERE id_users = $1"""
+    return await conn.fetchval(query, id_users)
+
+
+async def get_users_number_phone(id_users):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    query = """SELECT number_phone FROM table_users_id WHERE id_users = $1"""
+    return await conn.fetchval(query, id_users)
+
+
+
