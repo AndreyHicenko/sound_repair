@@ -27,6 +27,11 @@ kb_sign_up_num = InlineKeyboardMarkup()
 kb_sign_up_num.insert(btn_sign_up_installation_num_yes)
 kb_sign_up_num.insert(btn_sign_up_installation_num_no)
 
+btn_sign_up_only_back_num = InlineKeyboardButton(text='Назад', callback_data='callback_sign_up_back_num')
+kb_sign_up_only_back_num = InlineKeyboardMarkup()
+kb_sign_up_only_back_num.insert(btn_sign_up_only_back_num)
+
+
 btn_sign_up_only_back = InlineKeyboardButton(text='Назад', callback_data='callback_sign_up_back')
 kb_sign_up_only_back = InlineKeyboardMarkup()
 kb_sign_up_only_back.insert(btn_sign_up_only_back)

@@ -151,4 +151,14 @@ async def get_users_number_phone(id_users):
     return await conn.fetchval(query, id_users)
 
 
+async def get_admin_users_with_role(role):
+    conn = await asyncpg.connect(host=HOST_DB,
+                                 port=PORT_DB,
+                                 user=USER_DB,
+                                 password=PASSWORD_DB,
+                                 database=DATABASE_NAME_DB)
+    query = """SELECT id_admin_users FROM table_admin_id WHERE role_admin = $1"""
+    return await conn.fetchval(query, role)
+
+
 

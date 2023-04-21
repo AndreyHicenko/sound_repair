@@ -266,6 +266,7 @@ async def callback_photo_back(callback: types.callback_query):
             await bot.send_photo(chat_id=callback.from_user.id, photo=photo, reply_markup=kb_photo_example_works)
 
 
+# запись на установку автозвука //////////////////////////////////////////////////////////////////////////////////////
 @dp.callback_query_handler(text='callback_sign_up_btn')
 async def callback_sign_up_btn(callback: types.callback_query):
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
@@ -314,8 +315,9 @@ async def callback_sign_up_back(callback: types.callback_query, state: FSMContex
 async def callback_installation_yes(callback: types.callback_query, state: FSMContext):
     await state.finish()
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
-    await bot.send_message(callback.from_user.id, '<b>Укажите ваш номер телефона</b>', parse_mode='HTML',
-                           reply_markup=kb_sign_up_only_back)
+    await bot.send_message(callback.from_user.id, '<b>Укажите ваш номер телефона в формате'
+                                                  ' 79XXXXXXXXX</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up_only_back_num)
     await Mydialog.state_sign_up_mobile_number.set()
 
 
@@ -334,13 +336,41 @@ async def callback_installation_state(message: types.Message, state: FSMContext)
 async def callback_installation_yes(callback: types.callback_query, state: FSMContext):
     await state.finish()
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    btn_resend_users = InlineKeyboardButton(text='Перезвонить',
+                                            url=f'http://onmap.uz/tel/'
+                                                f'{(await get_users_number_phone(callback.from_user.id))}')
+    kb_admin_install = InlineKeyboardMarkup()
+    kb_admin_install.add(btn_resend_users)
+    await bot.send_message((await get_admin_users_with_role('installation')),
+                           f'<b>{(await get_users_name(callback.from_user.id))} записался(лась) на установку акустики.\n\n'
+                           f'перезвоните ему(ей) по номеру</b> {(await get_users_number_phone(callback.from_user.id))}',
+                           reply_markup=kb_admin_install, parse_mode='HTML')
     await bot.send_message(callback.from_user.id, f'<b>Вы записались на установку акустики.'
-                                                  f' В ближайшее время вам перезвонят по номеру </b>'
+                                                  f' В ближайшее время вам перезвонят по указаному вами номеру </b>'
                                                   f'{(await get_users_number_phone(callback.from_user.id))}'
                                                   f' <b>для уточнения времени</b>'
                            , parse_mode='HTML',
                            reply_markup=kb_sign_up_back_to_servis)
 
 
+@dp.callback_query_handler(text='callback_sign_up_installation_num_no', state=Mydialog.state_sign_up_mobile_number)
+async def callback_installation_yes(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Укажите ваш номер телефона в формате'
+                                                  ' 79XXXXXXXXX</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up_only_back_num)
+    await Mydialog.state_sign_up_mobile_number.set()
+
+
+@dp.callback_query_handler(text='callback_sign_up_back_num', state=Mydialog.state_sign_up_mobile_number)
+async def callback_sign_up_back_(callback: types.callback_query, state: FSMContext):
+    await state.finish()
+    await bot.delete_message(callback.from_user.id, callback.message.message_id)
+    await bot.send_message(callback.from_user.id, '<b>Выберете куда вы хотите записаться</b>', parse_mode='HTML',
+                           reply_markup=kb_sign_up)
+
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 if __name__ == '__main__':
     executor.start_polling(dp)
