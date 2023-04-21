@@ -82,6 +82,7 @@ async def get_admin_lost_message(id_admin_users):
     query = """SELECT admin_lost_message FROM table_admin_id WHERE id_admin_users = $1"""
     return await conn.fetchval(query, id_admin_users)
 
+
 async def get_users_lost_photo(id_users):
     conn = await asyncpg.connect(host=HOST_DB,
                                  port=PORT_DB,
@@ -90,6 +91,7 @@ async def get_users_lost_photo(id_users):
                                  database=DATABASE_NAME_DB)
     query = """SELECT lost_photo FROM table_users_id WHERE id_users = $1"""
     return await conn.fetchval(query, id_users)
+
 
 async def update_lost_photo_users_up(id):
     lost_photo = (await get_users_lost_photo(id)) + 1
@@ -100,6 +102,7 @@ async def update_lost_photo_users_up(id):
                                  database=DATABASE_NAME_DB)
     statement = """UPDATE table_users_id SET lost_photo = $1 WHERE id_users = $2"""
     await conn.execute(statement, lost_photo, id)
+
 
 async def update_lost_photo_users_down(id):
     lost_photo = (await get_users_lost_photo(id)) - 1
@@ -131,6 +134,7 @@ async def update_number_phone_users(number_phone, id):
     statement = """UPDATE table_users_id SET number_phone = $1 WHERE id_users = $2"""
     await conn.execute(statement, number_phone, id)
 
+
 async def get_users_name(id_users):
     conn = await asyncpg.connect(host=HOST_DB,
                                  port=PORT_DB,
@@ -159,6 +163,3 @@ async def get_admin_users_with_role(role):
                                  database=DATABASE_NAME_DB)
     query = """SELECT id_admin_users FROM table_admin_id WHERE role_admin = $1"""
     return await conn.fetchval(query, role)
-
-
-
