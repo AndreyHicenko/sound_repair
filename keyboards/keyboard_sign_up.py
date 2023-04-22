@@ -38,3 +38,21 @@ kb_sign_up_only_back.insert(btn_sign_up_only_back)
 kb_back_to_servises = InlineKeyboardButton(text='Вернуться к услугам', callback_data='kb_our_services')
 kb_sign_up_back_to_servis = InlineKeyboardMarkup()
 kb_sign_up_back_to_servis.insert(kb_back_to_servises)
+
+
+
+
+
+
+
+
+
+btn_sign_up_car_service_yes = InlineKeyboardButton(text='Да', callback_data='callback_car_service_yes')
+btn_sign_up_car_service_no = InlineKeyboardButton(text='Нет', callback_data='callback_car_service_no')
+kb_sign_up_name_car_service = InlineKeyboardMarkup()
+kb_sign_up_name_car_service.insert(btn_sign_up_car_service_yes)
+kb_sign_up_name_car_service.insert(btn_sign_up_car_service_no)
+
+
+
+
