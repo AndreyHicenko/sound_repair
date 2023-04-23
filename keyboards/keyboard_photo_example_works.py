@@ -2,7 +2,6 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
-
 btn_photo_back = InlineKeyboardButton(text='⬅', callback_data='callback_photo_back')
 btn_photo_forward = InlineKeyboardButton(text='➡', callback_data='callback_photo_forward')
 kb_back_to_servises = InlineKeyboardButton(text='Вернуться к услугам', callback_data='kb_our_services')

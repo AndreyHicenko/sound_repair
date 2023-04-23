@@ -22,7 +22,3 @@ btn_admin_mailing_send_back = InlineKeyboardButton(text='Перейти в ко�
                                                    callback_data='callback_admin_mail_back_to_console')
 kb_admin_mailing_send_back = InlineKeyboardMarkup()
 kb_admin_mailing_send_back.add(btn_admin_mailing_send_back)
-
-
-
-
