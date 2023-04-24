@@ -5,7 +5,7 @@
 -- Dumped from database version 15.2
 -- Dumped by pg_dump version 15.2
 
--- Started on 2023-04-14 20:57:28
+-- Started on 2023-04-24 22:18:58
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,7 +29,8 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.table_admin_id (
     id_admin_users numeric(15,0),
-    admin_lost_message text
+    admin_lost_message text,
+    role_admin text
 );
 
 
@@ -80,24 +81,30 @@ ALTER TABLE public.table_price_subwoofer OWNER TO postgres;
 --
 
 CREATE TABLE public.table_users_id (
-    id_users numeric(15,0)
+    id_users numeric(15,0),
+    lost_photo numeric DEFAULT 1 NOT NULL,
+    name text,
+    number_phone text
 );
 
 
 ALTER TABLE public.table_users_id OWNER TO postgres;
 
 --
--- TOC entry 3333 (class 0 OID 16414)
+-- TOC entry 3334 (class 0 OID 16414)
 -- Dependencies: 217
 -- Data for Name: table_admin_id; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.table_admin_id (id_admin_users, admin_lost_message) FROM stdin;
+COPY public.table_admin_id (id_admin_users, admin_lost_message, role_admin) FROM stdin;
+5673151625	\N	acoustics_repair
+5673151625	\N	car_service
+5673151625	\N	installation
 \.
 
 
 --
--- TOC entry 3332 (class 0 OID 16409)
+-- TOC entry 3333 (class 0 OID 16409)
 -- Dependencies: 216
 -- Data for Name: table_price_amplifier; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -117,7 +124,7 @@ COPY public.table_price_amplifier (type_work, price) FROM stdin;
 
 
 --
--- TOC entry 3330 (class 0 OID 16399)
+-- TOC entry 3331 (class 0 OID 16399)
 -- Dependencies: 214
 -- Data for Name: table_price_dinamic; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -138,7 +145,7 @@ COPY public.table_price_dinamic (type_work, price) FROM stdin;
 
 
 --
--- TOC entry 3331 (class 0 OID 16404)
+-- TOC entry 3332 (class 0 OID 16404)
 -- Dependencies: 215
 -- Data for Name: table_price_subwoofer; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -154,18 +161,19 @@ COPY public.table_price_subwoofer (type_work, price) FROM stdin;
 
 
 --
--- TOC entry 3334 (class 0 OID 16420)
+-- TOC entry 3335 (class 0 OID 16420)
 -- Dependencies: 218
 -- Data for Name: table_users_id; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.table_users_id (id_users) FROM stdin;
-5673151625
-6186779086
+COPY public.table_users_id (id_users, lost_photo, name, number_phone) FROM stdin;
+1904981956	3	Crj	554323433
+5673151625	6	Р	Шршпгп
+6186779086	4	Рщпщ	75372613
 \.
 
 
--- Completed on 2023-04-14 20:57:29
+-- Completed on 2023-04-24 22:18:59
 
 --
 -- PostgreSQL database dump complete
