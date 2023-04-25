@@ -1,6 +1,2 @@
 TOKEN = "6132187529:AAFvZL3oZVyN_uPCmIPDkF6N3f1fdJcZe_8"
-USER_DB = 'postgres'
-PASSWORD_DB = '13271408'
-HOST_DB = '127.0.0.1'
-PORT_DB = '1234'
-DATABASE_NAME_DB = 'db_sound_repair'
+DATABASE = 'postgres://AndreyHicenko:7NDsRi9wfPct@ep-small-silence-945427.us-east-2.aws.neon.tech/neondb'
